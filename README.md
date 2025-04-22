@@ -2,4 +2,4 @@
 
 <h2> A dating app for cave men/women 😭🙏🏻 </h2>
 
-<p>Team - Swadheen Mishra,Syed Mohammad Zoran Rizvi</p>
+<p>Team - Swadheen Mishra, Syed Mohammad Zoran Rizvi</p>
