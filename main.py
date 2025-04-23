@@ -1,12 +1,25 @@
 import flet as ft
 import google.generativeai as genai
 from datetime import datetime
+import pyttsx3
+import threading
+import random
+import time
 from APIKEY import key #can't include obv
 
 
 genai.configure(api_key=key)
+engine = pyttsx3.init()
+engine.setProperty("rate", 90)
 
 model = genai.GenerativeModel('gemini-1.5-flash')
+
+translate = False
+
+def say(txt: str):
+    global engine
+    engine.say(txt)
+    engine.runAndWait()
 
 def chat(page: ft.Page, id: str):
     page.clean()
@@ -14,7 +27,6 @@ def chat(page: ft.Page, id: str):
     page.padding = 5
     page.vertical_alignment = ft.MainAxisAlignment.END
     
-
     page.appbar = ft.AppBar(
     leading=ft.IconButton(
         icon=ft.icons.HOME,
@@ -28,7 +40,6 @@ def chat(page: ft.Page, id: str):
     bgcolor=ft.colors.BLUE,
     title_text_style=ft.TextStyle(color=ft.colors.WHITE, size=22),
     )   
-
 
     chat_column = ft.Column(expand=True, scroll=ft.ScrollMode.AUTO,)
 
@@ -111,7 +122,7 @@ def chat(page: ft.Page, id: str):
                     expand=True,
                     image_src="https://raw.githubusercontent.com/SwadheenMishra/HackathonNavachar/refs/heads/main/assets/3.png",
                     image_fit=ft.ImageFit.FILL,
-                    image_opacity=0.2
+                    image_opacity=0.5
                 ),
                 input_row
             ],
@@ -136,12 +147,40 @@ def profile(page: ft.Page, id: str="Cavemen"):
         radius=30
     )
 
-    def play_audio(e):
-        e.control.selected = not e.control.selected
-
-        print(e.control.selected)
-        #https://github.com/SwadheenMishra/HackathonNavachar/blob/main/assets/cave%20(1).ogg
+    def check(e):
+        global translate
         
+        translate = translateBtn.value
+
+        print(translate)
+
+    def play_audio(e):
+        global engine, translate
+
+        if not e.control.selected:
+            n = random.randint(5, 8)
+
+            if not translate:
+                randomNoise = " ".join(random.choice(["OOOGA", "BOOOGA", "UHH"]) for i in range(n))
+            else: 
+                randomNoise = {
+                    "Ben": "I Ben into hunting since i was 5 year's old",
+                    "David": "I David love eating",
+                    "James": "James sleep good",
+                    "John": "John scared of fire",
+                    "Michael": "Michael lonely",
+                    "Robert": "Robert inscets bugs",
+                    "Sophia": "Sophia Big strong",
+                    }[id]
+            # time.sleep(2)
+            import pyttsx3
+            
+            engine = pyttsx3.init()
+            engine.setProperty("rate", 90)
+            engine.say(randomNoise)
+            engine.runAndWait()
+            engine.endLoop()
+
         e.control.update()
 
     audio = ft.Audio(src="https://github.com/SwadheenMishra/HackathonNavachar/blob/main/assets/cave%20(1).ogg")
@@ -152,7 +191,7 @@ def profile(page: ft.Page, id: str="Cavemen"):
     msgButton = ft.FloatingActionButton(icon=ft.icons.MESSAGE, on_click=lambda a, name=id: chat(page, id))
     audioLbl = ft.Text("Audio Description: ", size=20)
     playAudioBtn = ft.IconButton(icon=ft.icons.PLAY_CIRCLE, scale=1.6, on_click=play_audio, selected_icon=ft.icons.PAUSE_CIRCLE)
-    translateBtn = ft.Checkbox("Translate")
+    translateBtn = ft.Checkbox("Translate", on_change=check)
     page.add(ft.Row([ft.Container(content=ft.Column([profilePic, lbl1, DiscriptionText, audioLbl, ft.Row([playAudioBtn, ft.Container(width=5), translateBtn])], expand=True), image_src="https://raw.githubusercontent.com/SwadheenMishra/HackathonNavachar/refs/heads/main/assets/2.png", image_opacity=0.2, expand=True, image_fit=ft.ImageFit.FILL)], expand=True), msgButton)
     audio.play()
     page.update()
